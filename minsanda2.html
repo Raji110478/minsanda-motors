@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Minsanda Motors - Full System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #f0f4f8; padding-bottom: 70px; }
+
+        .header {
+            background: linear-gradient(135deg, #1a237e, #0d1445);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { font-size: 16px; }
+        .logout-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .user-badge {
+            background: rgba(255,255,255,0.1);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: #a5b4fc;
+        }
+
+        .tab-nav {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 50px;
+            z-index: 99;
+            overflow-x: auto;
+            padding: 0 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 55px;
+            padding: 8px 4px;
+            border: none;
+            background: transparent;
+            font-size: 9px;
+            font-weight: 600;
+            color: #94a3b8;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+        .tab-btn.active { color: #1a237e; border-bottom-color: #1a237e; background: #f0f4ff; }
+        .tab-btn .icon { font-size: 16px; display: block; }
+
+        .tab-content { display: none; padding: 12px; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #eef2f6;
+        }
+        .card-title { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 10px; background: #e8edf5; padding: 2px 10px; border-radius: 20px; font-weight: 500; color: #475569; }
+
+        .form-group { margin-bottom: 8px; }
+        .form-group label { font-size: 11px; font-weight: 600; color: #475569; display: block; margin-bottom: 2px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+            background: #f8fafc;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: #1a237e; background: white; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-primary { background: #1a237e; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-sm { padding: 3px 8px; font-size: 10px; }
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 10px; }
+        th { background: #f1f5f9; padding: 6px 4px; text-align: left; font-weight: 700; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        td { padding: 6px 4px; border-bottom: 1px solid #eef2f6; }
+
+        .search-box {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+        .search-box:focus { border-color: #1a237e; }
+
+        .text-muted { color: #94a3b8; font-size: 10px; }
+        .text-success { color: #10b981; font-weight: 600; }
+        .text-danger { color: #ef4444; font-weight: 600; }
+        .text-warning { color: #f59e0b; font-weight: 600; }
+
+        .loading { text-align: center; padding: 20px; color: #94a3b8; font-size: 12px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            display: flex;
+            border-top: 1px solid #e2e8f0;
+            padding: 3px 0 env(safe-area-inset-bottom);
+            z-index: 200;
+        }
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 3px 0;
+            font-size: 8px;
+            color: #94a3b8;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+        .nav-item.active { color: #1a237e; font-weight: 600; }
+        .nav-item .icon { font-size: 18px; display: block; }
+
+        .toast {
+            position: fixed;
+            bottom: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 11px;
+            display: none;
+            z-index: 999;
+            max-width: 90%;
+        }
+        .toast.show { display: block; }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        .edit-badge {
+            background: #fef9c3;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #92400e;
+            margin-bottom: 8px;
+            display: none;
+        }
+        .edit-badge.show { display: block; }
+
+        .stock-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eef2f6;
+        }
+        .stock-card .model { font-weight: 600; font-size: 12px; }
+        .stock-card .qty { font-size: 14px; font-weight: 700; color: #1a237e; }
+        .stock-card .qty.low { color: #ef4444; }
+        .stock-card .qty.medium { color: #f59e0b; }
+        .stock-card .qty.high { color: #10b981; }
+
+        .arrival-item {
+            padding: 6px 0;
+            border-bottom: 1px solid #eef2f6;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+        }
+
+        @media (min-width: 600px) { body { max-width: 480px; margin: 0 auto; } }
+
+        .status-confirmed { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 600; display: inline-block; }
+        .status-pending { background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 600; display: inline-block; }
+        .status-sold { background: #fecaca; color: #991b1b; padding: 2px 8px; border-radius: 20px; font-size: 8px; font-weight: 600; display: inline-block; }
+
+        .highlight { background: #fef9c3; padding: 1px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div>
+            <h1>🚗 Minsanda Motors</h1>
+            <span class="user-badge" id="userBadge">👤 Admin</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="form">📝<br>Add</button>
+        <button class="tab-btn" data-tab="view">📋<br>View</button>
+        <button class="tab-btn" data-tab="stock">📦<br>Stock</button>
+        <button class="tab-btn" data-tab="search">🔍<br>Search</button>
+        <button class="tab-btn" data-tab="dashboard">📊<br>Dash</button>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ============================================================
+         TAB 1: DATA ENTRY FORM
+    ============================================================ -->
+    <div class="tab-content active" id="tab-form">
+        <div class="card">
+            <div class="card-title">📝 Sales Entry <span class="badge" id="formMode">New</span></div>
+            <div class="edit-badge" id="editBadge">✏️ Editing: <span id="editName"></span></div>
+
+            <form id="salesForm" onsubmit="saveRecord(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📅 Date</label>
+                        <input type="date" id="formDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>👤 Customer Name</label>
+                        <input type="text" id="formName" placeholder="Enter name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🆔 ID / NIC</label>
+                        <input type="text" id="formId" placeholder="Enter ID">
+                    </div>
+                    <div class="form-group">
+                        <label>📞 Phone</label>
+                        <input type="text" id="formPhone" placeholder="Phone number">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🚗 Model</label>
+                        <select id="formModel" required onchange="updatePrice()">
+                            <option value="">Select</option>
+                            <option value="CT 100 RED">CT 100 RED</option>
+                            <option value="CT 100 BLUE">CT 100 BLUE</option>
+                            <option value="DISCOVER 125 RED">DISCOVER 125 RED</option>
+                            <option value="DISCOVER 125 BLUE">DISCOVER 125 BLUE</option>
+                            <option value="PULSAR N125">PULSAR N125</option>
+                            <option value="PULSAR N160 FI DC ABS">PULSAR N160 FI DC ABS</option>
+                            <option value="PULSAR N160 USD DC ABS">PULSAR N160 USD DC ABS</option>
+                            <option value="PULSAR NS200">PULSAR NS200</option>
+                            <option value="CHETAK">CHETAK</option>
+                            <option value="PLATINA 100">PLATINA 100</option>
+                            <option value="K T M DUKE 160">K T M DUKE 160</option>
+                            <option value="K T M DUKE 250">K T M DUKE 250</option>
+                            <option value="PULSAR RS200">PULSAR RS200</option>
+                            <option value="PULSAR NS125">PULSAR NS125</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>💰 Amount (Rs.)</label>
+                        <input type="number" id="formAmount" placeholder="Enter amount" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>💳 Payment</label>
+                        <select id="formPayment" onchange="toggleLeasing()">
+                            <option value="CASH">Cash</option>
+                            <option value="LEASING">Leasing</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="leasingGroup">
+                        <label>🏦 Leasing Company</label>
+                        <select id="formLeasing">
+                            <option value="">Select</option>
+                            <option value="ASSET LINE">ASSET LINE</option>
+                            <option value="ASSET LINE MNG">ASSET LINE MNG</option>
+                            <option value="PRIDE PATH">PRIDE PATH</option>
+                            <option value="SINGER FINANCE">SINGER FINANCE</option>
+                            <option value="ALINCE FINANCE">ALINCE FINANCE</option>
+                            <option value="CENTRAL FINANCE">CENTRAL FINANCE</option>
+                            <option value="COMMERCIAL CREDIT">COMMERCIAL CREDIT</option>
+                            <option value="H N B">H N B</option>
+                            <option value="ASIA ASSET">ASIA ASSET</option>
+                            <option value="PEOPLES MICRO">PEOPLES MICRO</option>
+                            <option value="LOLC">LOLC</option>
+                            <option value="SENKADAGALA">SENKADAGALA</option>
+                            <option value="C D B WEL">C D B WEL</option>
+                            <option value="ALLINCE FINANCE MNG">ALLINCE FINANCE MNG</option>
+                            <option value="ASSET LINE MNG">ASSET LINE MNG</option>
+                            <option value="LOLC MNG">LOLC MNG</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🚗 Vehicle Number</label>
+                        <input type="text" id="formVehicleNo" placeholder="e.g. UPBKS-3448">
+                    </div>
+                    <div class="form-group">
+                        <label>🔍 Inquiry No</label>
+                        <input type="text" id="formInquiryNo" placeholder="e.g. LNQMNG2026020901508">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>📝 Notes</label>
+                    <input type="text" id="formNotes" placeholder="Additional notes">
+                </div>
+                <input type="hidden" id="formEditId" value="">
+
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="formBtn">💾 Save</button>
+                    <button type="button" class="btn btn-warning" id="cancelBtn" onclick="cancelEdit()" style="display:none;">❌ Cancel</button>
+                    <button type="reset" class="btn" style="background:#e2e8f0; color:#475569;" onclick="resetForm()">🔄 Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; text-align:center;">
+            <div><strong id="totalCount">0</strong><br><span style="font-size:9px;color:#94a3b8;">Total</span></div>
+            <div><strong id="cashCount">0</strong><br><span style="font-size:9px;color:#94a3b8;">Cash</span></div>
+            <div><strong id="leasingCount">0</strong><br><span style="font-size:9px;color:#94a3b8;">Leasing</span></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 2: VIEW DATA
+    ============================================================ -->
+    <div class="tab-content" id="tab-view">
+        <div class="card">
+            <input type="text" class="search-box" id="searchView" placeholder="🔍 Search by name, model, ID..." oninput="renderTable()">
+        </div>
+        <div class="card">
+            <div class="card-title">📋 Records <span class="badge" id="recordCount">0</span></div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Model</th>
+                            <th>Amount</th>
+                            <th>Vehicle No</th>
+                            <th>Inquiry No</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 3: STOCK CHECK
+    ============================================================ -->
+    <div class="tab-content" id="tab-stock">
+        <div class="card">
+            <div class="card-title">📦 Stock Overview <span class="badge" id="stockTotal">0</span></div>
+            <div id="stockList"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📅 Today's Vehicle Arrivals <span class="badge" id="arrivalCount">0</span></div>
+            <div id="arrivalsList"></div>
+            <div class="btn-group" style="margin-top:8px;">
+                <button class="btn btn-success btn-sm" onclick="addArrival()">➕ Add Arrival</button>
+                <button class="btn btn-warning btn-sm" onclick="showArrivalForm()">📝 Manual Entry</button>
+            </div>
+            <div id="arrivalForm" style="display:none; margin-top:8px; padding:10px; background:#f8fafc; border-radius:8px;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>🚗 Model</label>
+                        <select id="arrivalModel">
+                            <option value="CT 100 RED">CT 100 RED</option>
+                            <option value="CT 100 BLUE">CT 100 BLUE</option>
+                            <option value="DISCOVER 125 RED">DISCOVER 125 RED</option>
+                            <option value="DISCOVER 125 BLUE">DISCOVER 125 BLUE</option>
+                            <option value="PULSAR N125">PULSAR N125</option>
+                            <option value="PULSAR N160 FI DC ABS">PULSAR N160 FI DC ABS</option>
+                            <option value="PULSAR N160 USD DC ABS">PULSAR N160 USD DC ABS</option>
+                            <option value="PULSAR NS200">PULSAR NS200</option>
+                            <option value="CHETAK">CHETAK</option>
+                            <option value="PLATINA 100">PLATINA 100</option>
+                            <option value="K T M DUKE 160">K T M DUKE 160</option>
+                            <option value="K T M DUKE 250">K T M DUKE 250</option>
+                            <option value="PULSAR RS200">PULSAR RS200</option>
+                            <option value="PULSAR NS125">PULSAR NS125</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>📦 Quantity</label>
+                        <input type="number" id="arrivalQty" value="1" min="1">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="saveArrival()">💾 Save Arrival</button>
+                <button class="btn btn-sm" style="background:#e2e8f0;" onclick="document.getElementById('arrivalForm').style.display='none'">❌ Close</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📊 Model-wise Stock</div>
+            <div id="modelStockList"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 4: SEARCH
+    ============================================================ -->
+    <div class="tab-content" id="tab-search">
+        <div class="card">
+            <div class="card-title">🔍 Search by Vehicle Number</div>
+            <input type="text" class="search-box" id="searchVehicleNo" placeholder="Enter Vehicle Number..." oninput="searchByVehicle()">
+            <div id="vehicleSearchResult" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🔍 Search by Inquiry No</div>
+            <input type="text" class="search-box" id="searchInquiryNo" placeholder="Enter Inquiry No..." oninput="searchByInquiry()">
+            <div id="inquirySearchResult" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 5: DASHBOARD
+    ============================================================ -->
+    <div class="tab-content" id="tab-dashboard">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            <div style="background:white; border-radius:10px; padding:12px; border:1px solid #eef2f6; text-align:center;">
+                <div style="font-size:20px; font-weight:800; color:#1a237e;" id="dashTotal">0</div>
+                <div style="font-size:9px; color:#64748b;">Total Sales</div>
+            </div>
+            <div style="background:white; border-radius:10px; padding:12px; border:1px solid #eef2f6; text-align:center;">
+                <div style="font-size:20px; font-weight:800; color:#10b981;" id="dashRevenue">Rs.0</div>
+                <div style="font-size:9px; color:#64748b;">Revenue</div>
+            </div>
+            <div style="background:white; border-radius:10px; padding:12px; border:1px solid #eef2f6; text-align:center;">
+                <div style="font-size:20px; font-weight:800; color:#f59e0b;" id="dashStock">0</div>
+                <div style="font-size:9px; color:#64748b;">Stock</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🏆 Top Models</div>
+            <div id="topModels"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📈 Monthly Sales</div>
+            <div style="height:100px; display:flex; align-items:flex-end; gap:3px; padding-top:6px;" id="chartBars"></div>
+            <div style="display:flex; justify-content:space-between; font-size:7px; color:#94a3b8; margin-top:3px;">
+                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
+                <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <button class="nav-item active" data-tab="form"><span class="icon">📝</span>Add</button>
+        <button class="nav-item" data-tab="view"><span class="icon">📋</span>View</button>
+        <button class="nav-item" data-tab="stock"><span class="icon">📦</span>Stock</button>
+        <button class="nav-item" data-tab="search"><span class="icon">🔍</span>Search</button>
+        <button class="nav-item" data-tab="dashboard"><span class="icon">📊</span>Dash</button>
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA
+        // ============================================================
+
+        let records = [];
+        let stockData = [];
+        let arrivals = [];
+        let editMode = false;
+        let editId = null;
+
+        // Price List
+        const priceList = {
+            'CT 100 RED': 592950,
+            'CT 100 BLUE': 592950,
+            'DISCOVER 125 RED': 729950,
+            'DISCOVER 125 BLUE': 729950,
+            'PULSAR N125': 719950,
+            'PULSAR N160 FI DC ABS': 914950,
+            'PULSAR N160 USD DC ABS': 979950,
+            'PULSAR NS200': 1124950,
+            'CHETAK': 806950,
+            'PLATINA 100': 639950,
+            'K T M DUKE 160': 1469950,
+            'K T M DUKE 250': 1834950,
+            'PULSAR RS200': 1229950,
+            'PULSAR NS125': 789950
+        };
+
+        // Default Stock
+        const defaultStock = [
+            { model: 'CT 100 RED', qty: 10 },
+            { model: 'CT 100 BLUE', qty: 15 },
+            { model: 'DISCOVER 125 RED', qty: 5 },
+            { model: 'DISCOVER 125 BLUE', qty: 8 },
+            { model: 'PULSAR N125', qty: 6 },
+            { model: 'PULSAR N160 FI DC ABS', qty: 12 },
+            { model: 'PULSAR N160 USD DC ABS', qty: 9 },
+            { model: 'PULSAR NS200', qty: 7 },
+            { model: 'CHETAK', qty: 4 },
+            { model: 'PLATINA 100', qty: 10 },
+            { model: 'K T M DUKE 160', qty: 3 },
+            { model: 'K T M DUKE 250', qty: 2 },
+            { model: 'PULSAR RS200', qty: 5 },
+            { model: 'PULSAR NS125', qty: 6 }
+        ];
+
+        // ============================================================
+        //  LOAD / SAVE DATA
+        // ============================================================
+
+        function loadData() {
+            // Load sales records
+            const saved = localStorage.getItem('minsanda_data');
+            if (saved) {
+                try { records = JSON.parse(saved); }
+                catch(e) { records = []; }
+            } else {
+                records = [
+                    { id: 1, date: '2026-02-06', name: 'Harsha Lakmal', idNo: '903383020V', phone: '775206208', model: 'PULSAR N160 FI DC ABS', amount: 881110, payment: 'CASH', leasing: '', vehicleNo: 'UPBKS-3448', inquiryNo: 'LNQMNG2026020901508', notes: '' },
+                    { id: 2, date: '2026-02-06', name: 'Manoj Sri Jihan', idNo: '199927602640', phone: '763198982', model: 'PULSAR N160 USD DC ABS', amount: 600000, payment: 'LEASING', leasing: 'ASSET LINE', vehicleNo: 'UPBKS-2593', inquiryNo: 'PNQMNG2026021002237', notes: '' },
+                    { id: 3, date: '2026-03-19', name: 'R M Harshana', idNo: '932313790V', phone: '719515750', model: 'PULSAR NS200', amount: 1086110, payment: 'CASH', leasing: '', vehicleNo: 'UPBKX-6431', inquiryNo: 'PNQMNG2026031906047', notes: '' },
+                    { id: 4, date: '2026-04-17', name: 'M R Shafni', idNo: '200135302562', phone: '703798809', model: 'K T M DUKE 160', amount: 1476110, payment: 'CASH', leasing: '', vehicleNo: 'UPBLB-1295', inquiryNo: 'PNQMNG2026041704261', notes: '' },
+                    { id: 5, date: '2026-06-11', name: 'M M Mursith', idNo: '200331900552', phone: '769939749', model: 'K T M DUKE 250', amount: 1121130, payment: 'LEASING', leasing: 'ASSET LINE', vehicleNo: 'UPBKV-7946', inquiryNo: 'PNQMNG2026060602122', notes: '' }
+                ];
+                saveData();
+            }
+
+            // Load stock data
+            const savedStock = localStorage.getItem('minsanda_stock');
+            if (savedStock) {
+                try { stockData = JSON.parse(savedStock); }
+                catch(e) { stockData = [...defaultStock]; }
+            } else {
+                stockData = [...defaultStock];
+                saveStock();
+            }
+
+            // Load arrivals
+            const savedArrivals = localStorage.getItem('minsanda_arrivals');
+            if (savedArrivals) {
+                try { arrivals = JSON.parse(savedArrivals); }
+                catch(e) { arrivals = []; }
+            } else {
+                arrivals = [];
+                saveArrivals();
+            }
+
+            updateStats();
+            updateStockUI();
+            updateArrivalsUI();
+            updateDashboard();
+        }
+
+        function saveData() {
+            localStorage.setItem('minsanda_data', JSON.stringify(records));
+            updateStats();
+        }
+
+        function saveStock() {
+            localStorage.setItem('minsanda_stock', JSON.stringify(stockData));
+            updateStockUI();
+            updateDashboard();
+        }
+
+        function saveArrivals() {
+            localStorage.setItem('minsanda_arrivals', JSON.stringify(arrivals));
+            updateArrivalsUI();
+        }
+
+        function generateId() {
+            if (records.length === 0) return 1;
+            return Math.max(...records.map(r => r.id)) + 1;
+        }
+
+        // ============================================================
+        //  FORM
+        // ============================================================
+
+        function resetForm() {
+            document.getElementById('salesForm').reset();
+            document.getElementById('formEditId').value = '';
+            document.getElementById('editBadge').classList.remove('show');
+            document.getElementById('formBtn').textContent = '💾 Save';
+            document.getElementById('cancelBtn').style.display = 'none';
+            document.getElementById('formMode').textContent = 'New';
+            editMode = false;
+            editId = null;
+            document.getElementById('formDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('leasingGroup').style.display = 'none';
+        }
+
+        function cancelEdit() { resetForm(); }
+
+        function toggleLeasing() {
+            const val = document.getElementById('formPayment').value;
+            document.getElementById('leasingGroup').style.display = val === 'LEASING' ? 'block' : 'none';
+        }
+
+        function updatePrice() {
+            const model = document.getElementById('formModel').value;
+            if (model && priceList[model]) {
+                document.getElementById('formAmount').value = priceList[model];
+            }
+        }
+
+        function editRecord(id) {
+            const r = records.find(x => x.id === id);
+            if (!r) return;
+            editMode = true;
+            editId = id;
+
+            document.getElementById('formDate').value = r.date || '';
+            document.getElementById('formName').value = r.name || '';
+            document.getElementById('formId').value = r.idNo || '';
+            document.getElementById('formPhone').value = r.phone || '';
+            document.getElementById('formModel').value = r.model || '';
+            document.getElementById('formAmount').value = r.amount || '';
+            document.getElementById('formPayment').value = r.payment || 'CASH';
+            document.getElementById('formLeasing').value = r.leasing || '';
+            document.getElementById('formVehicleNo').value = r.vehicleNo || '';
+            document.getElementById('formInquiryNo').value = r.inquiryNo || '';
+            document.getElementById('formNotes').value = r.notes || '';
+            document.getElementById('formEditId').value = id;
+
+            toggleLeasing();
+            document.getElementById('editBadge').classList.add('show');
+            document.getElementById('editName').textContent = r.name;
+            document.getElementById('formBtn').textContent = '✏️ Update';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            document.getElementById('formMode').textContent = 'Edit';
+
+            switchTab('form');
+        }
+
+        function saveRecord(e) {
+            e.preventDefault();
+
+            const date = document.getElementById('formDate').value;
+            const name = document.getElementById('formName').value.trim();
+            const idNo = document.getElementById('formId').value.trim();
+            const phone = document.getElementById('formPhone').value.trim();
+            const model = document.getElementById('formModel').value;
+            const amount = parseFloat(document.getElementById('formAmount').value);
+            const payment = document.getElementById('formPayment').value;
+            const leasing = document.getElementById('formLeasing').value.trim();
+            const vehicleNo = document.getElementById('formVehicleNo').value.trim();
+            const inquiryNo = document.getElementById('formInquiryNo').value.trim();
+            const notes = document.getElementById('formNotes').value.trim();
+            const editIdVal = document.getElementById('formEditId').value;
+
+            if (!name || !model || !amount || !date) {
+                showToast('Fill all required fields!', 'error');
+                return;
+            }
+
+            if (payment === 'LEASING' && !leasing) {
+                showToast('Please select a Leasing Company!', 'error');
+                return;
+            }
+
+            // Check stock availability
+            if (!editMode) {
+                const stockItem = stockData.find(s => s.model === model);
+                if (stockItem && stockItem.qty <= 0) {
+                    showToast('❌ Out of stock for ' + model + '!', 'error');
+                    return;
+                }
+            }
+
+            if (editMode && editIdVal) {
+                const idx = records.findIndex(r => r.id === parseInt(editIdVal));
+                if (idx !== -1) {
+                    const oldModel = records[idx].model;
+                    records[idx] = { ...records[idx], date, name, idNo, phone, model, amount, payment, leasing: payment === 'LEASING' ? leasing : '', vehicleNo, inquiryNo, notes };
+                    saveData();
+                    
+                    // Update stock: add back old model, deduct new model
+                    if (oldModel !== model) {
+                        const oldStock = stockData.find(s => s.model === oldModel);
+                        if (oldStock) oldStock.qty += 1;
+                        const newStock = stockData.find(s => s.model === model);
+                        if (newStock) newStock.qty -= 1;
+                        saveStock();
+                    }
+                    
+                    showToast('✅ Updated!', 'success');
+                    resetForm();
+                    renderTable();
+                    updateDashboard();
+                }
+            } else {
+                // Deduct from stock
+                const stockItem = stockData.find(s => s.model === model);
+                if (stockItem) {
+                    stockItem.qty -= 1;
+                    saveStock();
+                }
+
+                records.push({
+                    id: generateId(),
+                    date, name, idNo, phone, model, amount, payment,
+                    leasing: payment === 'LEASING' ? leasing : '',
+                    vehicleNo, inquiryNo, notes
+                });
+                saveData();
+                showToast('✅ Saved! Stock deducted: ' + model, 'success');
+                resetForm();
+                renderTable();
+                updateDashboard();
+            }
+        }
+
+        // ============================================================
+        //  VIEW TABLE
+        // ============================================================
+
+        function renderTable() {
+            const search = document.getElementById('searchView').value.toLowerCase().trim();
+            let filtered = records;
+            if (search) {
+                filtered = records.filter(r =>
+                    r.name.toLowerCase().includes(search) ||
+                    r.model.toLowerCase().includes(search) ||
+                    (r.idNo && r.idNo.includes(search)) ||
+                    (r.vehicleNo && r.vehicleNo.toLowerCase().includes(search)) ||
+                    (r.inquiryNo && r.inquiryNo.toLowerCase().includes(search))
+                );
+            }
+
+            document.getElementById('recordCount').textContent = filtered.length;
+
+            let html = '';
+            if (filtered.length === 0) {
+                html = '<tr><td colspan="8" class="text-muted" style="text-align:center;padding:15px;">No records</td></tr>';
+            } else {
+                filtered.forEach(r => {
+                    html += `
+                        <tr>
+                            <td>${r.id}</td>
+                            <td>${r.date}</td>
+                            <td style="max-width:60px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.name}</td>
+                            <td style="font-size:9px;">${r.model}</td>
+                            <td style="font-weight:600;">Rs. ${r.amount.toLocaleString()}</td>
+                            <td style="font-size:9px;">${r.vehicleNo || '-'}</td>
+                            <td style="font-size:9px;">${r.inquiryNo || '-'}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="editRecord(${r.id})">✏️</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteRecord(${r.id})">🗑️</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('tableBody').innerHTML = html;
+        }
+
+        function deleteRecord(id) {
+            if (confirm('Delete this record?')) {
+                const r = records.find(x => x.id === id);
+                if (r) {
+                    // Return to stock
+                    const stockItem = stockData.find(s => s.model === r.model);
+                    if (stockItem) stockItem.qty += 1;
+                    saveStock();
+                }
+                records = records.filter(r => r.id !== id);
+                saveData();
+                renderTable();
+                updateDashboard();
+                showToast('🗑️ Deleted, stock returned', 'success');
+            }
+        }
+
+        // ============================================================
+        //  STOCK MANAGEMENT
+        // ============================================================
+
+        function updateStockUI() {
+            const total = stockData.reduce((sum, s) => sum + s.qty, 0);
+            document.getElementById('stockTotal').textContent = total;
+
+            let html = '';
+            stockData.forEach(s => {
+                const status = s.qty === 0 ? 'low' : (s.qty <= 3 ? 'medium' : 'high');
+                html += `
+                    <div class="stock-card">
+                        <span class="model">${s.model}</span>
+                        <span class="qty ${status}">${s.qty}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('stockList').innerHTML = html || '<div class="text-muted">No stock data</div>';
+
+            // Model-wise stock
+            let modelHtml = '';
+            stockData.forEach(s => {
+                modelHtml += `
+                    <div style="display:flex; justify-content:space-between; padding:4px 0; font-size:11px; border-bottom:1px solid #eef2f6;">
+                        <span>${s.model}</span>
+                        <span style="font-weight:600;">${s.qty}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('modelStockList').innerHTML = modelHtml || '<div class="text-muted">No data</div>';
+        }
+
+        // ============================================================
+        //  ARRIVALS MANAGEMENT
+        // ============================================================
+
+        function updateArrivalsUI() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayArrivals = arrivals.filter(a => a.date === today);
+            document.getElementById('arrivalCount').textContent = todayArrivals.length;
+
+            let html = '';
+            if (todayArrivals.length === 0) {
+                html = '<div class="text-muted">No arrivals today</div>';
+            } else {
+                todayArrivals.forEach(a => {
+                    html += `
+                        <div class="arrival-item">
+                            <span>${a.model} <span class="text-success">+${a.qty}</span></span>
+                            <span style="font-size:9px; color:#94a3b8;">${a.time}</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('arrivalsList').innerHTML = html;
+        }
+
+        function showArrivalForm() {
+            const form = document.getElementById('arrivalForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addArrival() {
+            // Quick add +1 for selected model
+            const model = document.getElementById('arrivalModel').value;
+            const qty = parseInt(document.getElementById('arrivalQty').value) || 1;
+            saveArrivalData(model, qty);
+        }
+
+        function saveArrival() {
+            const model = document.getElementById('arrivalModel').value;
+            const qty = parseInt(document.getElementById('arrivalQty').value) || 1;
+            saveArrivalData(model, qty);
+            document.getElementById('arrivalForm').style.display = 'none';
+        }
+
+        function saveArrivalData(model, qty) {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const time = now.toTimeString().split(' ')[0];
+
+            arrivals.push({
+                id: arrivals.length + 1,
+                date: today,
+                time: time,
+                model: model,
+                qty: qty
+            });
+            saveArrivals();
+
+            // Update stock
+            const stockItem = stockData.find(s => s.model === model);
+            if (stockItem) {
+                stockItem.qty += qty;
+                saveStock();
+            }
+
+            showToast('✅ Added ' + qty + ' ' + model + ' to stock', 'success');
+            updateArrivalsUI();
+            updateStockUI();
+            updateDashboard();
+        }
+
+        // ============================================================
+        //  SEARCH FUNCTIONS
+        // ============================================================
+
+        function searchByVehicle() {
+            const query = document.getElementById('searchVehicleNo').value.trim();
+            const resultDiv = document.getElementById('vehicleSearchResult');
+
+            if (!query) {
+                resultDiv.innerHTML = '<div class="text-muted">Enter vehicle number to search</div>';
+                return;
+            }
+
+            const results = records.filter(r => r.vehicleNo && r.vehicleNo.toLowerCase().includes(query.toLowerCase()));
+
+            if (results.length === 0) {
+                resultDiv.innerHTML = '<div class="text-muted">No records found for vehicle: ' + query + '</div>';
+                return;
+            }
+
+            let html = '<div style="font-weight:600; font-size:12px; margin-bottom:6px;">Found ' + results.length + ' record(s)</div>';
+            results.forEach(r => {
+                html += `
+                    <div style="padding:6px 0; border-bottom:1px solid #eef2f6; font-size:11px;">
+                        <div><strong>${r.name}</strong> - ${r.model}</div>
+                        <div style="color:#94a3b8;">Vehicle: <span class="highlight">${r.vehicleNo}</span> | Inquiry: ${r.inquiryNo || '-'}</div>
+                        <div style="font-weight:600; color:#1a237e;">Rs. ${r.amount.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            resultDiv.innerHTML = html;
+        }
+
+        function searchByInquiry() {
+            const query = document.getElementById('searchInquiryNo').value.trim();
+            const resultDiv = document.getElementById('inquirySearchResult');
+
+            if (!query) {
+                resultDiv.innerHTML = '<div class="text-muted">Enter inquiry number to search</div>';
+                return;
+            }
+
+            const results = records.filter(r => r.inquiryNo && r.inquiryNo.toLowerCase().includes(query.toLowerCase()));
+
+            if (results.length === 0) {
+                resultDiv.innerHTML = '<div class="text-muted">No records found for inquiry: ' + query + '</div>';
+                return;
+            }
+
+            let html = '<div style="font-weight:600; font-size:12px; margin-bottom:6px;">Found ' + results.length + ' record(s)</div>';
+            results.forEach(r => {
+                html += `
+                    <div style="padding:6px 0; border-bottom:1px solid #eef2f6; font-size:11px;">
+                        <div><strong>${r.name}</strong> - ${r.model}</div>
+                        <div style="color:#94a3b8;">Inquiry: <span class="highlight">${r.inquiryNo}</span> | Vehicle: ${r.vehicleNo || '-'}</div>
+                        <div style="font-weight:600; color:#1a237e;">Rs. ${r.amount.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            resultDiv.innerHTML = html;
+        }
+
+        // ============================================================
+        //  STATS
+        // ============================================================
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = records.length;
+            document.getElementById('cashCount').textContent = records.filter(r => r.payment === 'CASH').length;
+            document.getElementById('leasingCount').textContent = records.filter(r => r.payment === 'LEASING').length;
+        }
+
+        // ============================================================
+        //  DASHBOARD
+        // ============================================================
+
+        function updateDashboard() {
+            const total = records.length;
+            const revenue = records.reduce((sum, r) => sum + r.amount, 0);
+            const stockTotal = stockData.reduce((sum, s) => sum + s.qty, 0);
+
+            document.getElementById('dashTotal').textContent = total;
+            document.getElementById('dashRevenue').textContent = 'Rs.' + revenue.toLocaleString();
+            document.getElementById('dashStock').textContent = stockTotal;
+
+            // Top Models
+            const modelCount = {};
+            records.forEach(r => {
+                modelCount[r.model] = (modelCount[r.model] || 0) + 1;
+            });
+            const sortedModels = Object.entries(modelCount).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+            let modelHtml = '';
+            if (sortedModels.length === 0) {
+                modelHtml = '<div class="text-muted">No data</div>';
+            } else {
+                sortedModels.forEach(([model, count]) => {
+                    modelHtml += `
+                        <div style="display:flex; justify-content:space-between; padding:3px 0; font-size:11px; border-bottom:1px solid #eef2f6;">
+                            <span>${model}</span>
+                            <span style="font-weight:600;">${count}</span>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('topModels').innerHTML = modelHtml;
+
+            // Chart
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const monthlyTotals = months.map((m, i) => {
+                const monthNum = i + 1;
+                return records.filter(r => new Date(r.date).getMonth() + 1 === monthNum)
+                    .reduce((sum, r) => sum + r.amount, 0);
+            });
+            const maxVal = Math.max(...monthlyTotals, 1);
+            const chartContainer = document.getElementById('chartBars');
+            let barHtml = '';
+            monthlyTotals.forEach(val => {
+                const pct = (val / maxVal) * 100;
+                barHtml += `
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; height:90px; justify-content:flex-end; cursor:pointer;" onclick="showMonthDetails(${monthlyTotals.indexOf(val) + 1})">
+                        <div style="width:100%; max-width:20px; height:${Math.max(pct, 2)}%; background:#1a237e; border-radius:2px 2px 0 0; min-height:2px;"></div>
+                        <span style="font-size:7px; margin-top:2px; color:#475569;">${(val/1000).toFixed(0)}k</span>
+                    </div>
+                `;
+            });
+            chartContainer.innerHTML = barHtml;
+        }
+
+        function showMonthDetails(monthNum) {
+            const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const monthName = monthNames[monthNum - 1];
+            const monthRecords = records.filter(r => new Date(r.date).getMonth() + 1 === monthNum);
+
+            if (monthRecords.length === 0) {
+                showToast('No sales for ' + monthName, 'error');
+                return;
+            }
+
+            let msg = `📊 ${monthName} ${new Date().getFullYear()} Sales:\n\n`;
+            monthRecords.forEach(r => {
+                msg += `• ${r.name} - ${r.model}`;
+                if (r.vehicleNo) msg += ` (${r.vehicleNo})`;
+                msg += ` - Rs. ${r.amount.toLocaleString()}\n`;
+            });
+            msg += `\nTotal: ${monthRecords.length} vehicles`;
+            msg += `\nRevenue: Rs. ${monthRecords.reduce((sum, r) => sum + r.amount, 0).toLocaleString()}`;
+
+            alert(msg);
+        }
+
+        // ============================================================
+        //  TOAST
+        // ============================================================
+
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type + ' show';
+            clearTimeout(t._timeout);
+            t._timeout = setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ============================================================
+        //  NAVIGATION
+        // ============================================================
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            const content = document.getElementById('tab-' + tabId);
+            if (content) content.classList.add('active');
+
+            document.querySelectorAll('.tab-btn[data-tab="' + tabId + '"]').forEach(el => el.classList.add('active'));
+            document.querySelectorAll('.nav-item[data-tab="' + tabId + '"]').forEach(el => el.classList.add('active'));
+
+            if (tabId === 'view') renderTable();
+            if (tabId === 'stock') { updateStockUI(); updateArrivalsUI(); }
+            if (tabId === 'dashboard') updateDashboard();
+        }
+
+        document.querySelectorAll('.tab-btn, .nav-item').forEach(el => {
+            el.addEventListener('click', function() {
+                const tab = this.dataset.tab;
+                if (tab) switchTab(tab);
+            });
+        });
+
+        // ============================================================
+        //  LOGOUT
+        // ============================================================
+
+        function logout() {
+            if (confirm('Logout?')) {
+                window.location.reload();
+            }
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+
+        loadData();
+        renderTable();
+        updateDashboard();
+        document.getElementById('formDate').value = new Date().toISOString().split('T')[0];
+        toggleLeasing();
+
+        console.log('🚗 Minsanda Motors - Full System');
+        console.log('📊 Records:', records.length);
+        console.log('📦 Stock Items:', stockData.length);
+        console.log('📅 Today Arrivals:', arrivals.filter(a => a.date === new Date().toISOString().split('T')[0]).length);
+    </script>
+
+</body>
+</html>
